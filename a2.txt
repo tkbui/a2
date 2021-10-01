@@ -1,0 +1,358 @@
+T.K. Bui | CS 185C | Worksheet 4, due 9/23/2021
+======================================================================================================================
+Script started on 2021-10-01 00:06:35+00:00 [TERM="xterm" TTY="/dev/pts/0" COLUMNS="189" LINES="52"]
+
+----------------------------------------------------------------------------------------------------------------------
+1) How many unique customers reviewed products in this file?
+   How many unique product ids were reviewed in this file?
+   How many unique product titles were reviewed in this file? Is it the same as the number of product ids?
+
+bui@f6linuxA7:~$ head -n 1 amazon_reviews_us_Books_v1_02.tsv
+marketplace	customer_id	review_id	product_id	product_parent	product_title	product_category	star_rating	helpful_votes	total_votes	vine	verified_purchase	review_headline	review_body	review_date
+
+bui@f6linuxA7:~$ cut -f 2 amazon_reviews_us_Books_v1_02.tsv > customerids.txt
+
+bui@f6linuxA7:~$ sort customerids.txt > customerids.txt.sorted
+
+bui@f6linuxA7:~$ uniq -c customerids.txt.sorted > customerids.txt.sorted.uniqcounts
+
+bui@f6linuxA7:~$ cut -f 4 amazon_reviews_us_Books_v1_02.tsv > productids.txt
+
+bui@f6linuxA7:~$ sort productids.txt > productids.txt.sorted
+
+bui@f6linuxA7:~$ uniq -c productids.txt.sorted > productids.txt.sorted.uniqcounts
+
+bui@f6linuxA7:~$ cut -f 6 amazon_reviews_us_Books_v1_02.tsv > producttitles.txt
+
+bui@f6linuxA7:~$ sort producttitles.txt > producttitles.txt.sorted
+
+bui@f6linuxA7:~$ uniq -c producttitles.txt.sorted > producttitles.txt.sorted.uniqcounts
+
+bui@f6linuxA7:~$ wc -l customerids.txt.sorted.uniqcounts
+1502381 customerids.txt.sorted.uniqcounts
+
+bui@f6linuxA7:~$ wc -l productids.txt.sorted.uniqcounts
+779734 productids.txt.sorted.uniqcounts
+
+bui@f6linuxA7:~$ wc -l producttitles.txt.sorted.uniqcounts
+713712 producttitles.txt.sorted.uniqcounts
+
+EXPLANATION: I used cut to separate the 3 columns (customer_id, product_id, and product_title) into their own
+respective files. Then I sorted and got the unique count. Each returned count contains the name of the column,
+so we subtract 1 from our final answers. There are 1502380 unique customer ids, 779733 unique product ids,
+and 713711 unique product titles. So, the number of unique product titles is NOT the same as the number of
+unique product ids.
+
+----------------------------------------------------------------------------------------------------------------------
+2) Select 100 different customers ids that did more than one review. Put all the helpfulness scores and review scores
+(2 columns in each file) in different files named after CUSTOMERS/customerid.txt (replace customerid with the customer id).
+
+bui@f6linuxA7:~$ mkdir CUSTOMERS
+
+bui@f6linuxA7:~$ head customerids.txt.sorted.uniqcounts
+      1 12065385
+      1 12066099
+      1 12066297
+      1 12066432
+      1 12066457
+      1 12066749
+      1 12067609
+      1 12067919
+      1 12068129
+      1 12068140
+
+bui@f6linuxA7:~$ awk '{ if ($1 > "1") print $2}' customerids.txt.sorted.uniqcounts | head -n 100 > 100customerids.txt
+
+bui@f6linuxA7:~$ wc -l 100customerids.txt 
+100 100customerids.txt
+
+bui@f6linuxA7:~$ head -n 1 100customerids.txt 
+12069570
+
+bui@f6linuxA7:~$ grep 12069570 customerids.txt.sorted.uniqcounts
+      2 12069570
+
+bui@f6linuxA7:~$ for i in `cat 100customerids.txt`; do egrep $'\t'$i$'\t' amazon_reviews_us_Books_v1_02.tsv | cut -f 8-9 > "CUSTOMERS/$i.txt"; done
+
+EXPLANATION: I first got the column of customer ids where the unique count was greater than 1, and for the first
+100 customer ids that satisfied this rule were created files in CUSTOMERS with their star ratings (review scores)
+and helpfulness columns, respectively.
+
+----------------------------------------------------------------------------------------------------------------------
+3) Select 100 different product ids. Put all the helpfulness scores and review scores (2 columns in each file)
+in different files named after PRODUCTS/productid.txt (replace productid with the product id).
+
+bui@f6linuxA7:~$ mkdir PRODUCTS
+
+bui@f6linuxA7:~$ awk '{ if ($1 > "1") print $2}' productids.txt.sorted.uniqcounts | head -n 100 > 100productids.txt
+
+bui@f6linuxA7:~$ for i in `cat 100productids.txt`; do egrep $'\t'$i$'\t' amazon_reviews_us_Books_v1_02.tsv | cut -f 8-9 > "PRODUCTS/$i.txt"; done
+
+EXPLANATION: I did the same process as in #2. I got only the first 100 product ids where the unique count was
+greater than 1 to allow for more interesting results in later questions. The file for each product id has 2 columns,
+the first for star ratings (review scores) and the second for helpfulness scores.
+
+----------------------------------------------------------------------------------------------------------------------
+4) Write an alias called "l" to display the files in the current directory in list format and reverse
+chronologically-ordered as a short name for: ls -latr.
+
+bui@f6linuxA7:~$ alias l="ls -latr"
+
+bui@f6linuxA7:~$ l
+total 3638612
+-rw-rw-r-- 1 bui  bui  3238702530 Nov 24  2017 amazon_reviews_us_Books_v1_02.tsv
+drwxr-xr-x 4 root root       4096 Aug 24 23:11 ..
+-rw-r--r-- 1 bui  bui         807 Aug 24 23:11 .profile
+-rw-r--r-- 1 bui  bui        3771 Aug 24 23:11 .bashrc
+-rw-r--r-- 1 bui  bui         220 Aug 24 23:11 .bash_logout
+drwx------ 2 bui  bui        4096 Aug 24 23:18 .cache
+-rw-rw-r-- 1 bui  bui          54 Aug 24 23:31 .gitconfig
+drwxrwxr-x 3 bui  bui        4096 Sep  7 01:03 .local
+drwxrwxr-x 3 bui  bui        4096 Sep 14 05:54 assignments
+-rw------- 1 bui  bui         556 Sep 23 23:34 .viminfo
+drwxrwxr-x 6 bui  bui        4096 Sep 24 00:38 worksheets
+-rw------- 1 bui  bui       40203 Oct  1 00:06 .bash_history
+-rw-rw-r-- 1 bui  bui    27949692 Oct  1 00:07 customerids.txt
+-rw-rw-r-- 1 bui  bui    27949692 Oct  1 00:07 customerids.txt.sorted
+-rw-rw-r-- 1 bui  bui    25540480 Oct  1 00:07 customerids.txt.sorted.uniqcounts
+-rw-rw-r-- 1 bui  bui    34160731 Oct  1 00:08 productids.txt
+-rw-rw-r-- 1 bui  bui    34160731 Oct  1 00:08 productids.txt.sorted
+-rw-rw-r-- 1 bui  bui    14814946 Oct  1 00:08 productids.txt.sorted.uniqcounts
+-rw-rw-r-- 1 bui  bui   140812208 Oct  1 00:09 producttitles.txt
+-rw-rw-r-- 1 bui  bui   140812208 Oct  1 00:09 producttitles.txt.sorted
+-rw-rw-r-- 1 bui  bui    40898677 Oct  1 00:09 producttitles.txt.sorted.uniqcounts
+-rw-rw-r-- 1 bui  bui         900 Oct  1 00:11 100customerids.txt
+drwxrwxr-x 2 bui  bui        4096 Oct  1 00:23 CUSTOMERS
+-rw-rw-r-- 1 bui  bui        4096 Oct  1 00:26 a2.txt
+drwxr-xr-x 8 bui  bui        4096 Oct  1 00:27 .
+-rw-rw-r-- 1 bui  bui        1100 Oct  1 00:27 100productids.txt
+drwxrwxr-x 2 bui  bui        4096 Oct  1 00:39 PRODUCTS
+
+EXPLANATION: I set the alias and tested it in my home directory.
+
+----------------------------------------------------------------------------------------------------------------------
+5) Write an alias called "w" to display the number of files in the current directory as a short name for: ls -la | wc.
+
+bui@f6linuxA7:~$ alias w="ls -la | wc"
+
+bui@f6linuxA7:~$ w
+     28     245    1708
+
+EXPLANATION: I set the alias and tested it in my home directory.
+
+----------------------------------------------------------------------------------------------------------------------
+6) Put these aliases in your .bashrc file, so they will be re-used everytime in the future.
+
+bui@f6linuxA7:~$ ls -a
+.              .bashrc     .profile            CUSTOMERS                          assignments                        productids.txt                    producttitles.txt.sorted
+..             .cache      .viminfo            PRODUCTS                           customerids.txt                    productids.txt.sorted             producttitles.txt.sorted.uniqcounts
+.bash_history  .gitconfig  100customerids.txt  a2.txt                             customerids.txt.sorted             productids.txt.sorted.uniqcounts  worksheets
+.bash_logout   .local      100productids.txt   amazon_reviews_us_Books_v1_02.tsv  customerids.txt.sorted.uniqcounts  producttitles.txt
+
+bui@f6linuxA7:~$ nano .bashrc
+
+bui@f6linuxA7:~$ source ~/.bashrc
+
+EXPLANATION: I deleted the screen capture of the nano editor because it was so large and messy, but basically I
+added the following lines under the comment "# some more ls aliases" in my .bashrc file:
+
+alias l="ls -latr"
+alias w="ls -la | wc"
+
+I also commented out alias l='ls -CF' just to be safe and make sure that the duplicate alias name didn't
+cause any problems.
+
+----------------------------------------------------------------------------------------------------------------------
+7) Verify you have 100 files in each of the CUSTOMERS and PRODUCTS directory (plus the usual hidden files . and ..)
+
+bui@f6linuxA7:~$ cd CUSTOMERS
+
+bui@f6linuxA7:~/CUSTOMERS$ ls | wc -l
+100
+
+bui@f6linuxA7:~/CUSTOMERS$ w
+    103     920    5293
+
+bui@f6linuxA7:~/CUSTOMERS$ ls -a | wc -l
+102
+
+bui@f6linuxA7:~/CUSTOMERS$ cd ..
+
+bui@f6linuxA7:~$ cd PRODUCTS
+
+bui@f6linuxA7:~/PRODUCTS$ ls | wc -l
+100
+
+bui@f6linuxA7:~/PRODUCTS$ w
+    103     920    5493
+
+bui@f6linuxA7:~/PRODUCTS$ ls -a | wc -l
+102
+
+EXPLANATION: In both the CUSTOMERS and PRODUCTS directories, I show that there are 100 files using ls | wc -l.
+Then, I show that there are the . and .. hidden files with w and ls -a | wc -l. The alias w is one higher than
+la -a | wc -l because it includes the line that shows the total space taken up that is returned from ls -l. 
+
+----------------------------------------------------------------------------------------------------------------------
+8) Compute the correlation between helpfulness scores and review scores per customer. What is the range of the
+correlation scores, amongst different customers, in other words which customers have most and least correlated
+helpfulness scores and review scores?
+
+bui@f6linuxA7:~$ wget http://ftp.gnu.org/gnu/datamash/datamash-1.3.tar.gz
+
+bui@f6linuxA7:~$ tar -xzf datamash-1.3.tar.gz
+
+bui@f6linuxA7:~$ ls
+100customerids.txt  a2.txt                             customerids.txt.sorted             productids.txt                    producttitles.txt.sorted
+100productids.txt   amazon_reviews_us_Books_v1_02.tsv  customerids.txt.sorted.uniqcounts  productids.txt.sorted             producttitles.txt.sorted.uniqcounts
+CUSTOMERS           assignments                        datamash-1.3                       productids.txt.sorted.uniqcounts  worksheets
+PRODUCTS            customerids.txt                    datamash-1.3.tar.gz                producttitles.txt
+
+bui@f6linuxA7:~$ cd datamash-1.3
+
+bui@f6linuxA7:~/datamash-1.3$ ./configure
+
+bui@f6linuxA7:~/datamash-1.3$ make
+
+bui@f6linuxA7:~/datamash-1.3$ ls
+ABOUT-NLS  ChangeLog    Makefile     NEWS    TODO        cfg.mk     config.log     configure.ac  datamash.1  init.cfg  maint.mk  src             tests
+AUTHORS    GNUmakefile  Makefile.am  README  aclocal.m4  config.h   config.status  contrib       doc         lib       man       stamp-h1
+COPYING    INSTALL      Makefile.in  THANKS  build-aux   config.in  configure      datamash      examples    m4        po        test-suite.log
+
+bui@f6linuxA7:~/datamash-1.3$ correlation=0
+
+bui@f6linuxA7:~/datamash-1.3$ for i in `ls ~/CUSTOMERS`; do correlation=$(./datamash -W ppearson 1:2 < ../CUSTOMERS/"$i"); echo $i$'\t'$correlation >> ../customerids.correlations.txt; done
+
+bui@f6linuxA7:~/datamash-1.3$ cd ..
+
+bui@f6linuxA7:~$ head customerids.correlations.txt 
+12069570.txt	1
+12075843.txt	-1
+12075852.txt	nan
+12075869.txt	-1
+12077413.txt	nan
+12077953.txt	nan
+12079497.txt	1
+12079748.txt	nan
+12079924.txt	-1
+12080245.txt	-0.39167472590032
+
+bui@f6linuxA7:~$ wc -l customerids.correlations.txt 
+100 customerids.correlations.txt
+
+bui@f6linuxA7:~$ sort customerids.correlations.txt > customerids.correlations.txt [K.sorted
+
+bui@f6linuxA7:~$ head customerids.correlations.txt.sorted 
+12069570.txt	1
+12075843.txt	-1
+12075852.txt	nan
+12075869.txt	-1
+12077413.txt	nan
+12077953.txt	nan
+12079497.txt	1
+12079748.txt	nan
+12079924.txt	-1
+12080245.txt	-0.39167472590032
+
+bui@f6linuxA7:~$ sort customerids.correlations.txt > customerids.correlations.txt.sorted  
+
+bui@f6linuxA7:~$ head customerids.correlations.txt.sorted
+12075843.txt	-1
+12075869.txt	-1
+12079924.txt	-1
+12098948.txt	-1
+12099358.txt	-1
+12112390.txt	-1
+12116569.txt	-1
+12125562.txt	-1
+12136796.txt	-1
+12157966.txt	-1
+
+bui@f6linuxA7:~$ tail customerids.correlations.txt.sorted 
+12092820.txt	1
+12093613.txt	1
+12099429.txt	1
+12110951.txt	1
+12114688.txt	1
+12119076.txt	1
+12136257.txt	1
+12137233.txt	1
+12144123.txt	1
+12149366.txt	1
+
+EXPLANATION: I installed datamash with wget and used the command from the assignment in a for loop to
+get the correlation for each customer. I put each file name and corresponding correlation in a file 
+called customerids.correlations.txt, and then sorted that file on the correlation (2nd) column. Then
+I got the head and tail of the sorted file. So, the range of the correlation scores amongst different
+customers is from -1 to 1.
+
+NOTE: While cleaning up this file, I accidentally deleted the command "make check" in the datamash
+folder as specified in the assignment. Just wanted to add this note in case it's necessary.
+
+----------------------------------------------------------------------------------------------------------------------
+9) For each customer's file compute his/her average (mean) helpfulness score. What is the range of different average
+helpfulnesses over all customers, in other words which customers gave the most helpful and the least helpful reviews?
+
+bui@f6linuxA7:~$ cd CUSTOMERS/
+
+bui@f6linuxA7:~/CUSTOMERS$ count=0; total=0; mean=0;
+
+bui@f6linuxA7:~/CUSTOMERS$ for i in `ls`; do for j in `awk '{print $2}' $i`; do total=$(echo $total+$j | bc ); ((count++)); done; mean=$(echo "scale=2; $total / $count" | bc ); echo $i$'\t'$mean >> ../customerids.helpfulness.mean.txt; total=0; count=0; done
+
+bui@f6linuxA7:~/CUSTOMERS$ cd ..
+
+bui@f6linuxA7:~$ head customerids.helpfulness.mean.txt 
+12069570.txt	4.00
+12075843.txt	19.50
+12075852.txt	1.50
+12075869.txt	.50
+12077413.txt	7.50
+12077953.txt	8.00
+12079497.txt	3.00
+12079748.txt	18.50
+12079924.txt	2.50
+12080245.txt	1.00
+
+bui@f6linuxA7:~$ sort -nk2 customerids.helpfulness.mean.txt > customerids.helpfulness.mean.txt.sorted
+
+bui@f6linuxA7:~$ head -n 1 customerids.helpfulness.mean.txt.sorted
+12085059.txt	0
+
+bui@f6linuxA7:~$ tail -n 1 customerids.helpfulness.mean.txt.sorted
+12110812.txt	61.50
+
+EXPLANATION: I used nested for loops so that for every customer file in CUSTOMERS, I add up all of the values
+in the helpfulness score (2nd) column and get the count of values. Then in the outer loop, I get the mean and
+place the customer file and its mean value in the customerids.helpfulness.mean.txt file. Then, I sort it and
+use head and tail to get the range of different average helpfulness scores over all customers, which is
+from 0 to 61.50.
+
+----------------------------------------------------------------------------------------------------------------------
+10) Do a similar thing for the products: For each product's file compute its average (mean) star_rating score.
+What is the range of different average star_ratings over all products, in other words which products got the 
+highest and lowest star_ratings reviews?
+
+bui@f6linuxA7:~$ cd PRODUCTS/
+
+bui@f6linuxA7:~/PRODUCTS$ count=0; total=0; mean=0;
+
+bui@f6linuxA7:~/PRODUCTS$ for i in `ls`; do for j in `awk '{print $1}' $i`; do total=$(echo $total+$j | bc ); ((count++)); done; mean=$(echo "scale=2; $total / $count" | bc ); echo $i$'\t'$mean >> ../productids.starrating.mean.txt; total=0; count=0; done
+
+bui@f6linuxA7:~/PRODUCTS$ cd ..
+
+bui@f6linuxA7:~$ sort -nk2 productids.starrating.mean.txt > productids.starrating.mean.txt.sorted
+
+bui@f6linuxA7:~$ head -n 1 productids.starrating.mean.txt.sorted
+0002005867.txt	2.25
+
+bui@f6linuxA7:~$ tail -n 1 productids.starrating.mean.txt.sorted
+0002221020.txt	5.00
+
+EXPLANATION: Similar to in #9, I used nested for loops but got the mean for the star ratings (1st) column of each
+product id file and put the corresponding files and means in productids.starrating.mean.txt. I sorted that file and
+used head and tail to get the range of different average star ratings over all products, which is from 2.25 to 5.00.
+
+======================================================================================================================
+bui@f6linuxA7:~$ exit
+
+Script done on 2021-10-01 01:15:12+00:00 [COMMAND_EXIT_CODE="0"]
