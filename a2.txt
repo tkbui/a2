@@ -1,4 +1,4 @@
-T.K. Bui | CS 185C | Worksheet 4, due 9/23/2021
+T.K. Bui | CS 185C | Assignment 2, due 9/30/2021
 ======================================================================================================================
 Script started on 2021-10-01 00:06:35+00:00 [TERM="xterm" TTY="/dev/pts/0" COLUMNS="189" LINES="52"]
 
@@ -287,7 +287,8 @@ I got the head and tail of the sorted file. So, the range of the correlation sco
 customers is from -1 to 1.
 
 NOTE: While cleaning up this file, I accidentally deleted the command "make check" in the datamash
-folder as specified in the assignment. Just wanted to add this note in case it's necessary.
+folder as specified in the assignment. Just wanted to add this note in case it's necessary. I also deleted all of
+the output from the commands from installing datamash, as it was too much.
 
 ----------------------------------------------------------------------------------------------------------------------
 9) For each customer's file compute his/her average (mean) helpfulness score. What is the range of different average
